@@ -1,14 +1,14 @@
-// index.js
+// index.ts
 
-// require() will make the express package useable 
-const express = require("express");
+// Import express library
+import express, { Request, Response } from 'express';
 
 // Creates an express object
 const app = express();
 
 // It listens to HTTP get request. 
 // Here it listens to the root i.e '/'
-app.get("/", (req, res) => {
+app.get("/", (req: Request, res: Response) => {
 
   // Using send function we send
   // response to the client
