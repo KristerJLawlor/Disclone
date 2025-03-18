@@ -1,0 +1,22 @@
+{
+  "name": "disclone",
+  "version": "1.0.0",
+  "description": "Discord clone project",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KristerJLawlor/Disclone.git"
+  },
+  "author": "Krister Lawlor",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/KristerJLawlor/Disclone/issues"
+  },
+  "homepage": "https://github.com/KristerJLawlor/Disclone#readme",
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
