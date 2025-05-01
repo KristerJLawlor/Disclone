@@ -6,6 +6,7 @@ import mongoose from 'mongoose';
 import cors from 'cors';  //mechanism to safely bypass the same-origin policy, that is, it allows a web page to access restricted resources from a server on a domain different than the domain that served the web page
 import mongoData from './mongoData';
 import { error } from 'console';
+import { channel } from 'diagnostics_channel';
 
 //app config
 const app = express();
@@ -13,7 +14,19 @@ const port = 3000;
 
 //middleware
 app.use(express.json());  //define what express will parse
-app.use(cors());  //cross origin resource sharing. Allows access from other domains (origins)
+
+let corsOptions = {
+  origin: 'http://localhost:3001',  //allow access from this domain
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',  //allow these methods
+  preflightContinue: false,  //preflight request
+  optionsSuccessStatus: 204,  //success status code
+  allowedHeaders: ['Content-Type', 'Authorization'],  //allowed headers
+  exposedHeaders: ['Content-Type', 'Authorization'],  //exposed headers
+  credentials: true,  //allow credentials
+  maxAge: 3600,  //max age of preflight request
+
+}
+app.use(cors(corsOptions));  //cross origin resource sharing. Allows access from other domains (origins)
 
 //db config   pass: KBw3wxv9DMVVKtwH
 const mongoURI = 'mongodb+srv://admin:KBw3wxv9DMVVKtwH@cluster0.b17mu.mongodb.net/DiscloneDB?retryWrites=true&w=majority&appName=Cluster0';
@@ -45,14 +58,14 @@ app.post('/new/channel', (req: Request, res: Response) => {
   console.log(req.body);
 
   const dbData = req.body;  //save data to immutable variable
-
+  /*
   if(mongoData.find({channel: dbData.channel})) //check for duplicate names and prevent adding if found
     {
       res.status(304).send();
       console.log("Not added due to duplication");
       return;
     }
-
+  */
   //create file from request
   mongoData.create(dbData)
     .then((result) => {res.status(201).send(dbData); }) //respond with success code
@@ -73,13 +86,13 @@ app.get('/get/channelList', (req: Request, res: Response) => {
       documents.map((channelData) => { //map through document and retrieve id + name and save to channelInfo
         const channelInfo = {
           id: channelData._id,
-          name: channelData.channel
+          channelName: channelData.channelName
         }
         channels.push(channelInfo)  //add channelInfo to list of channels
       })
-
+      console.log(channels);
       res.status(200).send(channels);}) //success
-
+      
     .catch((err) => {res.status(500).send(err)}); //error
 
 });

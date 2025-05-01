@@ -3,7 +3,7 @@ import mongoose from 'mongoose'
 const { Schema } = mongoose;
 
 const discordSchema = new Schema({
-        channel: String,
+        channelName: String,
         conversation: [
             {
                 message: String,
