@@ -7,10 +7,20 @@ import cors from 'cors';  //mechanism to safely bypass the same-origin policy, t
 import mongoData from './mongoData';
 import { error } from 'console';
 import { channel } from 'diagnostics_channel';
+import Pusher from 'pusher';
 
 //app config
 const app = express();
 const port = 3000;
+
+//pusher config
+const pusher = new Pusher({
+  appId: "1984575",
+  key: "4f5c5e9997c6a799cffe",
+  secret: "675c772ba8e085804e82",
+  cluster: "us3",
+  useTLS: true
+});
 
 //middleware
 app.use(express.json());  //define what express will parse
@@ -32,6 +42,35 @@ app.use(cors(corsOptions));  //cross origin resource sharing. Allows access from
 const mongoURI = 'mongodb+srv://admin:KBw3wxv9DMVVKtwH@cluster0.b17mu.mongodb.net/DiscloneDB?retryWrites=true&w=majority&appName=Cluster0';
 
 mongoose.connect(mongoURI);
+
+mongoose.connection.once('open', () => {
+  console.log("DB connected");
+
+  const changeStream = mongoose.connection.collection('conversations').watch(); //watch for changes in the collection
+
+  changeStream.on('change', (change) => { //listen for changes
+
+    console.log("Change detected");
+    console.log(change);
+    
+    if (change.operationType === 'insert') 
+    { //if a new message is added
+      pusher.trigger('channels', 'newChannel', {'change': change}); //trigger the pusher event
+      console.log("Pusher triggered for new channel");
+    } 
+    else if (change.operationType === 'update') 
+    { //if a message is deleted
+      pusher.trigger('conversation', 'newMessage', {'change': change}); //trigger the pusher event
+      console.log("Pusher triggered for new message");
+    } 
+    else 
+    { 
+      console.log("error triggering pusher");
+    }
+  })
+});
+
+
 
 app.get("/", (req: Request, res: Response) => {
 
